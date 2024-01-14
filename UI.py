@@ -14,7 +14,6 @@ def input_table():
     for _ in range(cage_count):
         
         line = input().split(" ")
-        print(line)
         sum = int(line[-1])
         cells = []
        
@@ -22,7 +21,7 @@ def input_table():
             
             cell_cord = list(map(int, cell_cord))
             x, y = cell_cord
-            cell = table.cells[x][y]
+            cell = table.cells[x-1][y-1]
             cells.append(cell)
            
         cage = Cage(cells=cells, goal_sum=sum)
