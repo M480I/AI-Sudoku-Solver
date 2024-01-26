@@ -7,7 +7,7 @@ def input_table():
         row = list(map(int, input().split(" ")))
         for j in range(9):
             if row[j]:
-                table.cells[i][j].domain.append(row[j])
+                table.cells[i][j].set_number(row[j])
                 
     cage_count = int(input())
     
@@ -28,6 +28,6 @@ def input_table():
         
         for cell in cells:
             cell.cage = cage
-    
+
     return table            
     
