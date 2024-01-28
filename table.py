@@ -1,3 +1,7 @@
+from arc import Arc
+from queue import Queue
+
+
 class Cell:
     
 
@@ -6,14 +10,19 @@ class Cell:
         self.column = column
         self.table = table
         self.number = None
+        self.domain = list(range(1, 10))
                 
         self.coordinates = self.row, self.column
         
         self.cage = None
         
+        self.connected_cells = None
+        self.connected_cells_rcs = None
+        self.connected_cells_cage = None
+        
         
     @property
-    def domain(self):
+    def rcs_domain(self):
         row_d = set(self.table.row_domain[self.row])
         column_d = set(self.table.column_domain[self.column])
         square_d = \
@@ -21,16 +30,30 @@ class Cell:
         
         return list(row_d & column_d & square_d)
         
-        
-        
-    @property
-    def connected_cells(self):
-        return list(set(self.table.other_cells_all(self)
-                    + self.cage.other_cells(self)))      
+    
+    def set_connected_cells_rcs(self):
+        self.connected_cells_rcs = \
+            self.table.other_cells_rcs(self)
     
     
-    def set_number(self, number):
+    def set_connected_cells_cage(self):
+        self.connected_cells_cage = \
+            self.cage.other_cells_cage(self)
+            
+        self.set_connected_cells()
+    
+    
+    def set_connected_cells(self):
+        self.connected_cells = \
+            list(set(self.connected_cells_rcs
+                     + self.connected_cells_cage
+                     ))
+
+    
+    def set_number(self, number) -> bool:
         self.number = number
+        self.domain.clear()
+        self.domain.append(number)
         
         self.table.row_domain[self.row].remove(number)
         self.table.column_domain[self.column].remove(number)
@@ -38,6 +61,30 @@ class Cell:
         
         self.table.unfilled_cells.remove(self)
         
+        arcs = Queue()
+        
+        for cell in self.connected_cells:
+            arc = Arc(first=cell,
+                      second=self,
+                      )
+            arcs.put(arc)
+            
+        while not arcs.empty():
+            arc = arcs.get()
+            
+            arc.enforce_consistency()
+            
+            if arc.domain_emptied:
+                return False
+            
+            if arc.domain_changed:
+                first = arc.first
+                for cell in first.connected_cells:
+                    arc = Arc(first=cell,
+                            second=first,
+                            )
+                    arcs.put(arc)
+        return True        
     
     
     def __str__(self) -> str:
@@ -57,7 +104,7 @@ class Table:
         self.cells: list[Cell] = []
         self.unfilled_cells: list[Cell] = []
         
-        _1_to_9 = [i for i in range(1, 10)]
+        _1_to_9 = list(range(1,10))
         self.row_domain = [_1_to_9.copy() for _ in range(9)]
         self.column_domain = [_1_to_9.copy() for _ in range(9)]
         self.square_domain = [
@@ -78,17 +125,12 @@ class Table:
                 row.append(cell)
                 self.unfilled_cells.append(cell)
             self.cells.append(row)
+            
+        for x in range(self.row_count):
+            for y in range(self.column_count):
+                cell = self.cells[x][y]
+                cell.set_connected_cells_rcs()
 
-
-    def other_cells_column(self, cell):
-        x, y = cell.coordinates
-        res = []
-        for i in range(self.row_count):
-            if i == x:
-                continue
-            res.append(self.cells[i][y])
-        return res
-    
 
     def other_cells_row(self, cell):
         x, y = cell.coordinates
@@ -98,6 +140,17 @@ class Table:
                 continue
             res.append(self.cells[x][i])
         return res
+    
+    
+    def other_cells_column(self, cell):
+        x, y = cell.coordinates
+        res = []
+        for i in range(self.row_count):
+            if i == x:
+                continue
+            res.append(self.cells[i][y])
+        return res
+    
 
     def other_cells_square(self, cell):
         x, y = cell.coordinates
@@ -113,7 +166,7 @@ class Table:
         return res
     
     
-    def other_cells_all(self, cell):
+    def other_cells_rcs(self, cell):
         return list(set(self.other_cells_row(cell)
                     + self.other_cells_column(cell)
                     + self.other_cells_square(cell)
@@ -173,26 +226,41 @@ class Cage:
         return res
     
     
-    def is_completed(self):
+    # not completed count
+    @property
+    def n_completed_cnt(self):
+        res = 0
         for cell in self.cells:
             if cell.number is None:
-                return False
-        return True
+                res += 1
+        return res
     
     
-    def is_satisfied(self):
-        return self.is_completed() and self.sum == self.goal_sum
-    
-    
-    def is_violated(self):
-        return ((self.is_completed() and self.sum != self.goal_sum)
-                or self.sum > self.goal_sum)
-    
-    
-    def other_cells(self, cell):
+    def other_cells_cage(self, cell):
         res = self.cells.copy()
         if cell not in res:
             raise RuntimeError
         res.remove(cell)
-        return res
+        return res    
+    
+    
+    def is_valid_arc(self, first, first_value, second, second_value):
+        
+        sum = self.sum
+        completed = len(self.cells) - self.n_completed_cnt
+        
+        if first not in self.cells or second not in self.cells:
+            raise RuntimeError
+        if first.number is None:
+            completed += 1
+            sum += first_value
+        if second.number is None:
+            completed += 1
+            sum += second_value
+            
+        if sum == self.goal_sum and completed == len(self.cells):
+            return True
+        if sum < self.goal_sum and completed < len(self.goal_sum):
+            return True
+        return False
     

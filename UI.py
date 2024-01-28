@@ -3,12 +3,13 @@ from table import Table, Cage
 
 def input_table():
     table = Table()
+    
+    inpt_table = []
     for i in range(9):
         row = list(map(int, input().split(" ")))
-        for j in range(9):
-            if row[j]:
-                table.cells[i][j].set_number(row[j])
-                
+        inpt_table.append(row)
+    
+    # make cages    
     cage_count = int(input())
     
     for _ in range(cage_count):
@@ -28,6 +29,14 @@ def input_table():
         
         for cell in cells:
             cell.cage = cage
+            cell.set_connected_cells_cage()
+                
+    # set initial numbers
+    for i in range(9):
+        for j in range(9):
+            if inpt_table[i][j]:
+                table.cells[i][j].set_number(inpt_table[i][j])
+    
 
     return table            
     
