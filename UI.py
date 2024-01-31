@@ -1,6 +1,9 @@
-from table import Table, Cage
+from table import Table
+from cage import Cage
 from queue import Queue
 from arc import Arc
+from backtrack import BackTrack
+from utils import enforce_consistency
 
 
 def input_table():
@@ -35,11 +38,15 @@ def input_table():
             
     
     # pre-process for forward-checking 
-    # arcs = Queue()       
-    # for i in range(9):
-    #     for j in range(9):
-            
-    #         arcs.put()
+    arcs = Queue()       
+    for i in range(9):
+        for j in range(9):
+            cell = table.cells[i][j]
+            for adj_cell in cell.connected_cells_cage:
+                arc = Arc(first=cell, second=adj_cell)
+                arcs.put(arc)
+    enforce_consistency(arcs)
+    
     
                 
     # set initial numbers
@@ -47,7 +54,7 @@ def input_table():
     for i in range(9):
         for j in range(9):
             if inpt_table[i][j] and table.cells[i][j].number is None:
-                if not table.cells[i][j].set_number(inpt_table[i][j]):
+                if not table.cells[i][j].set_number_ec(inpt_table[i][j]):
                     no_solution = True
                     break
                     
@@ -55,5 +62,9 @@ def input_table():
         print("no solution.")
     
 
-    return table            
+    return table
+
+
+def solve_table(table):
+    bt = BackTrack(table)           
     

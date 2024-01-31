@@ -1,10 +1,9 @@
-from queue import PriorityQueue
+from copy import deepcopy
 
 
 class BackTrack:
     
     
-    def __init__(self, board) -> None:
-        self.board = board
+    def __init__(self, table) -> None:
+        self.table = table
         
-        self.to_fix = PriorityQueue()

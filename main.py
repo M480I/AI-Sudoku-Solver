@@ -11,11 +11,12 @@ table = input_table()
 for i in range(9):
     for j in range(9):
         cell = table.cells[i][j]      
-        print(i, j, "\n", cell.domain, "\n", cell.rcs_domain)
+        print(i+1, j+1, "\n", cell.domain, "\n")
         
 print(table)
 
-print(table.pick_cell())
+for cell in table.pick_cell():
+    print(cell, cell.connected_cells_unfilled_cnt, sep="\n")
   
         
 # print(len(table.unfilled_cells))

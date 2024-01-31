@@ -15,7 +15,7 @@ class Arc:
         else:
             self.cage = None
         
-        self.domain_changed = False
+        self.domain_changes = 0
         self.domain_emptied = False
     
     # only needs to check for 'cage' part
@@ -25,6 +25,9 @@ class Arc:
             return
         
         new_domain = list(set(self.first.domain) & set(self.first.rcs_domain))
+        
+        if len(self.first.cage.cells) == 1:
+            new_domain = list(set(new_domain)&{self.first.cage.goal_sum})
         
         if self.cage is not None:
             for f_value in new_domain:
@@ -41,13 +44,14 @@ class Arc:
                     new_domain.remove(f_value)
         
                                 
-        if len(self.first.domain) != len(new_domain):
-            self.domain_changed = True
-            self.first.domain = new_domain
-            
-        if len(new_domain) == 1:
-            self.first.update_rcs_domain(new_domain[0])
+        if len(self.first.domain) == len(new_domain):
+            return
         
+        self.domain_changes = len(self.first.domain) - len(new_domain)
+        self.first.domain = new_domain
+        if len(new_domain) == 1:
+            self.first.set_number(new_domain[0])
+    
         elif not new_domain:
             self.domain_emptied = True
-                
+            

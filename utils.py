@@ -2,6 +2,9 @@ from arc import Arc
 from queue import Queue
 
 
+INF = 10000000
+
+
 def enforce_consistency(arcs):
     while not arcs.empty():
         arc = arcs.get()
@@ -11,7 +14,7 @@ def enforce_consistency(arcs):
         if arc.domain_emptied:
             return False
         
-        if arc.domain_changed:
+        if arc.domain_changes:
             first = arc.first
             for cell in first.connected_cells:
                 
