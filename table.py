@@ -1,5 +1,6 @@
 from arc import Arc
 from queue import Queue
+from utils import enforce_consistency
 
 
 class Cell:
@@ -50,41 +51,32 @@ class Cell:
                      ))
 
     
-    def set_number(self, number) -> bool:
+    def update_rcs_domain(self, number):
         self.number = number
-        self.domain.clear()
-        self.domain.append(number)
-        
         self.table.row_domain[self.row].remove(number)
         self.table.column_domain[self.column].remove(number)
         self.table.square_domain[self.row//3][self.column//3].remove(number)
+    
+    
+    def set_number(self, number) -> bool:
+        self.domain.clear()
+        self.domain.append(number)
+        
+        self.update_rcs_domain(number)
         
         self.table.unfilled_cells.remove(self)
         
         arcs = Queue()
         
         for cell in self.connected_cells:
+            if cell.number is not None:
+                continue
             arc = Arc(first=cell,
-                      second=self,
-                      )
+                    second=self,
+                    )
             arcs.put(arc)
             
-        while not arcs.empty():
-            arc = arcs.get()
-            
-            arc.enforce_consistency()
-            
-            if arc.domain_emptied:
-                return False
-            
-            if arc.domain_changed:
-                first = arc.first
-                for cell in first.connected_cells:
-                    arc = Arc(first=cell,
-                            second=first,
-                            )
-                    arcs.put(arc)
-        return True        
+        return enforce_consistency(arcs)    
     
     
     def __str__(self) -> str:
@@ -260,7 +252,7 @@ class Cage:
             
         if sum == self.goal_sum and completed == len(self.cells):
             return True
-        if sum < self.goal_sum and completed < len(self.goal_sum):
+        if sum < self.goal_sum and completed < len(self.cells):
             return True
         return False
     

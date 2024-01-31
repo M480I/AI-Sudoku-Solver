@@ -1,4 +1,6 @@
 from table import Table, Cage
+from queue import Queue
+from arc import Arc
 
 
 def input_table():
@@ -30,12 +32,27 @@ def input_table():
         for cell in cells:
             cell.cage = cage
             cell.set_connected_cells_cage()
+            
+    
+    # pre-process for forward-checking 
+    # arcs = Queue()       
+    # for i in range(9):
+    #     for j in range(9):
+            
+    #         arcs.put()
+    
                 
     # set initial numbers
+    no_solution = False
     for i in range(9):
         for j in range(9):
-            if inpt_table[i][j]:
-                table.cells[i][j].set_number(inpt_table[i][j])
+            if inpt_table[i][j] and table.cells[i][j].number is None:
+                if not table.cells[i][j].set_number(inpt_table[i][j]):
+                    no_solution = True
+                    break
+                    
+    if no_solution:
+        print("no solution.")
     
 
     return table            

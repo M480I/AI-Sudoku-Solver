@@ -8,9 +8,15 @@ table = input_table()
 
 # print(cell.connected_cells)
 
-for i in range(3, 4):
-    for j in range(3, 4):
-        print(i, j, table.cells[i][j].connected_cells)
+for i in range(9):
+    for j in range(9):
+        cell = table.cells[i][j]      
+        print(i, j, "\n", cell.domain, "\n", cell.rcs_domain)
+        
+print(table)
+
+print(table.pick_cell())
+  
         
 # print(len(table.unfilled_cells))
 # for cell in table.unfilled_cells:
