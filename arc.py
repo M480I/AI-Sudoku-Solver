@@ -29,8 +29,10 @@ class Arc:
         if len(self.first.cage.cells) == 1:
             new_domain = list(set(new_domain)&{self.first.cage.goal_sum})
         
+        new_domain_tmp = new_domain[:]
+        
         if self.cage is not None:
-            for f_value in new_domain:
+            for f_value in new_domain_tmp:
                 valid = False
                 for s_value in self.second.domain:
                     if self.cage.is_valid_arc(

@@ -49,11 +49,25 @@ def input_table():
     # set initial numbers
     for i in range(9):
         for j in range(9):
-            if inpt_table[i][j] and table.cells[i][j].number is None:
-                if not table.cells[i][j].set_number_ec(inpt_table[i][j]):
+            
+            cell = table.cells[i][j]
+            
+            if inpt_table[i][j]:
+                
+                if cell.number:
+                    if cell.number == inpt_table[i][j]:
+                        continue
                     table.no_solution = True
-                    break
-    
+                    return table
+                    
+                if inpt_table[i][j] not in cell.domain:
+                    table.no_solution = True
+                    return table
+                
+                if not cell.set_number_ec(inpt_table[i][j]):
+                    table.no_solution = True
+                    return table
+                
     return table
 
 
@@ -70,6 +84,7 @@ def output_answer(table):
     
     if not bt.solved_table:
         print("This sudoku have no answers.(after back-tracking)")
+        print(f"Time: {bt.time}")
         return
     
     print(bt.solved_table)
