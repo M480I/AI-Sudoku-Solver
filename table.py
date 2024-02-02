@@ -21,6 +21,9 @@ class Table:
         ]
                 
         self.make_cells()
+        
+        self.no_solution = False
+        self.cages_set = False
 
         
     # make cells for board
@@ -79,6 +82,18 @@ class Table:
                     + self.other_cells_square(cell)
         ))
         
+    
+    @property
+    def tot_cells_domain(self):
+        res = 0
+        unfilled_cells = self.unfilled_cells
+        for cell in unfilled_cells:
+            res += len(cell.domain)
+        res += (self.row_count*self.column_count
+                - len(unfilled_cells))
+        return res
+    
+        
     # pick a cell to fill next 
     # according to most constrained variable 
     # and most constraining variable as a tie-breaker
@@ -99,7 +114,7 @@ class Table:
             key=lambda x: 
                 -(x.connected_cells_unfilled_cnt),
         )
-                
+        
         return bests[0]
 
 

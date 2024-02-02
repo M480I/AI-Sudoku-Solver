@@ -10,12 +10,12 @@ class Arc:
         self.first = first
         self.second = second
         
-        if self.first in self.second.connected_cells_cage:
+        if self.first.cage is self.second.cage:
             self.cage = self.first.cage
         else:
             self.cage = None
         
-        self.domain_changes = 0
+        self.domain_changed = False
         self.domain_emptied = False
     
     # only needs to check for 'cage' part
@@ -47,7 +47,7 @@ class Arc:
         if len(self.first.domain) == len(new_domain):
             return
         
-        self.domain_changes = len(self.first.domain) - len(new_domain)
+        self.domain_changed = True
         self.first.domain = new_domain
         if len(new_domain) == 1:
             self.first.set_number(new_domain[0])

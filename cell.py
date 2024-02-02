@@ -1,5 +1,4 @@
 from arc import Arc
-from queue import Queue
 from utils import enforce_consistency
 
 
@@ -74,7 +73,7 @@ class Cell:
         
         self.set_number(number)
                 
-        arcs = Queue()
+        arcs = []
         
         for cell in self.connected_cells:
             if cell.number is not None:
@@ -82,15 +81,14 @@ class Cell:
             arc = Arc(first=cell,
                     second=self,
                     )
-            arcs.put(arc)
+            arcs.append(arc)
             
         return enforce_consistency(arcs)    
     
     
     def __str__(self) -> str:
-        return f"{self.number} in ({self.row+1}, {self.column+1})"
+        return f"{self.number} in ({self.row}, {self.column})"
     
     
     def __repr__(self) -> str:
         return self.__str__()
-    

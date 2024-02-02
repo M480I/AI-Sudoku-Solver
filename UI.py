@@ -1,6 +1,5 @@
 from table import Table
 from cage import Cage
-from queue import Queue
 from arc import Arc
 from backtrack import BackTrack
 from utils import enforce_consistency
@@ -35,36 +34,45 @@ def input_table():
         for cell in cells:
             cell.cage = cage
             cell.set_connected_cells_cage()
-            
+    table.cages_set = True   
     
     # pre-process for forward-checking 
-    arcs = Queue()       
+    arcs = []     
     for i in range(9):
         for j in range(9):
             cell = table.cells[i][j]
-            for adj_cell in cell.connected_cells_cage:
+            for adj_cell in cell.connected_cells:
                 arc = Arc(first=cell, second=adj_cell)
-                arcs.put(arc)
+                arcs.append(arc)
     enforce_consistency(arcs)
-    
-    
-                
+         
     # set initial numbers
-    no_solution = False
     for i in range(9):
         for j in range(9):
             if inpt_table[i][j] and table.cells[i][j].number is None:
                 if not table.cells[i][j].set_number_ec(inpt_table[i][j]):
-                    no_solution = True
+                    table.no_solution = True
                     break
-                    
-    if no_solution:
-        print("no solution.")
     
-
     return table
 
 
-def solve_table(table):
-    bt = BackTrack(table)           
+def output_answer(table):
+    if not table.cages_set:
+        print("Cages haven't been set for this table.")
+        return
+    
+    if table.no_solution:
+        print("This sudoku have no answers.")
+        return
+    
+    bt = BackTrack(table)
+    
+    if not bt.solved_table:
+        print("This sudoku have no answers.(after back-tracking)")
+        return
+    
+    print(bt.solved_table)
+    
+    print(f"Time: {bt.time}")
     
