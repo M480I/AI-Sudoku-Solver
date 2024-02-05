@@ -1,5 +1,6 @@
 from cell import Cell
 from utils import INF
+from copy import deepcopy, copy
     
 
 class Table:
@@ -9,7 +10,7 @@ class Table:
         self.row_count = self.column_count = 9
         
         self.cells: list[Cell] = []
-        self.unfilled_cells: list[Cell] = []
+        self.unfilled_cells: list[tuple[int, int]] = []
         
         _1_to_9 = list(range(1,10))
         self.row_domain = [_1_to_9.copy() for _ in range(9)]
@@ -24,6 +25,15 @@ class Table:
         
         self.no_solution = False
         self.cages_set = False
+        
+        
+    # def is_valid(self) -> bool:
+    #     for x in range(self.row_count):
+    #         for y in range(self.column_count):
+    #             cell = self.cells[x][y]
+    #             if cell.cage.sum != cell.cage.goal_sum:
+    #                 return False
+    #     return True
 
         
     # make cells for board
@@ -33,7 +43,7 @@ class Table:
             for y in range(self.column_count):
                 cell = Cell(x, y, self)
                 row.append(cell)
-                self.unfilled_cells.append(cell)
+                self.unfilled_cells.append(cell.coordinates)
             self.cells.append(row)
             
         for x in range(self.row_count):
@@ -87,7 +97,8 @@ class Table:
     def tot_cells_domain(self):
         res = 0
         unfilled_cells = self.unfilled_cells
-        for cell in unfilled_cells:
+        for x, y in unfilled_cells:
+            cell = self.cells[x][y]
             res += len(cell.domain)
         res += (self.row_count*self.column_count
                 - len(unfilled_cells))
@@ -98,7 +109,7 @@ class Table:
     # according to most constrained variable 
     # and most constraining variable as a tie-breaker
     def pick_cell(self):
-        bests = self.unfilled_cells.copy()
+        bests = [self.cells[x][y] for x, y in self.unfilled_cells]
         
         bests.sort(
             key=lambda x: len(x.domain) if len(x.domain) > 1 else INF,
@@ -144,3 +155,18 @@ class Table:
     
     def __repr__(self) -> str:
         return self.__str__()
+    
+    
+    def __deepcopy__(self, memo=None):
+        if memo is None:
+            memo = {}
+            
+        new_table = copy(self)
+        
+        new_table.cells = deepcopy(self.cells, memo)
+        new_table.unfilled_cells = deepcopy(self.unfilled_cells, memo)
+        new_table.row_domain = deepcopy(self.row_domain, memo)
+        new_table.column_domain = deepcopy(self.column_domain, memo)
+        new_table.square_domain = deepcopy(self.square_domain, memo)
+        
+        return new_table

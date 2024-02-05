@@ -18,10 +18,10 @@ class BackTrack:
         
         # LCV
         def tot_domains(value):
-            new_table = deepcopy(table)
-            if not new_table.cells[x][y].set_number_ec(value):
-                return INF
-            return -new_table.tot_cells_domain      
+            table.cells[x][y].set_number(value)
+            res = -table.tot_cells_domain
+            table.cells[x][y].un_set_number()
+            return res     
                   
         if not table.unfilled_cells:
             self.solved_table = table           
@@ -30,20 +30,10 @@ class BackTrack:
         cell = table.pick_cell()
         x, y = cell.coordinates
         
-        domain = cell.domain
-        
-        value_tot_domains = {
-            value: tot_domains(value)
-            for value in domain
-            }
+        domain = cell.domain.copy()
         
         # sort values according to LCV
-        domain.sort(key= lambda x: value_tot_domains[x])
-        domain = list(filter(
-            lambda x: value_tot_domains[x] < INF,
-            domain
-        ))
-        
+        domain.sort(key=tot_domains)
         
         for value in domain:
             new_table = deepcopy(table)

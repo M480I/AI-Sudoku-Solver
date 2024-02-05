@@ -44,7 +44,10 @@ def input_table():
             for adj_cell in cell.connected_cells:
                 arc = Arc(first=cell, second=adj_cell)
                 arcs.append(arc)
-    enforce_consistency(arcs)
+    if not enforce_consistency(arcs):
+        table.no_solution = True
+        return table
+
          
     # set initial numbers
     for i in range(9):
@@ -90,4 +93,6 @@ def output_answer(table):
     print(bt.solved_table)
     
     print(f"Time: {bt.time}")
+    
+    return bt.solved_table
     
