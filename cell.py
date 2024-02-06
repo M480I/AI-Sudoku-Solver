@@ -60,7 +60,7 @@ class Cell:
     
     def set_number(self, number):
         self.number = number
-        self.bu_domain = self.domain
+        self.bu_domain = self.domain[:]
         self.domain.clear()
         self.domain.append(number)
         self.table.row_domain[self.row].remove(number)
@@ -72,7 +72,8 @@ class Cell:
     def un_set_number(self):
         number = self.number
         self.number = None
-        self.domain = self.bu_domain
+        self.domain = self.bu_domain[:]
+        del self.bu_domain
         self.table.row_domain[self.row].append(number)
         self.table.column_domain[self.column].append(number)
         self.table.square_domain[self.row//3][self.column//3].append(number)
