@@ -38,7 +38,9 @@ class Arc:
         
         if self.cage is not None:
             for f_value in new_domain_tmp:
+                
                 valid = False
+                
                 for s_value in self.second.domain:
                     if ((not can_not_same or f_value != s_value)
                         and self.cage.is_valid_arc(
