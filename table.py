@@ -9,7 +9,7 @@ class Table:
     def __init__(self) -> None:
         self.row_count = self.column_count = 9
         
-        self.cells: list[Cell] = []
+        self.cells: list[list[Cell]] = []
         self.unfilled_cells: list[tuple[int, int]] = []
         
         _1_to_9 = list(range(1,10))

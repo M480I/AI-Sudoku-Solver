@@ -60,6 +60,7 @@ class Arc:
         self.domain_changed = True
         
         self.first.domain = new_domain
+        
         if len(new_domain) == 1:
             self.first.set_number(new_domain[0])
     
